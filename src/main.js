@@ -13,10 +13,24 @@ Vue.use(ElementUI)
 
 Vue.config.productionTip = false
 
+// 全局导航过滤(拦截路由请求)
+router.beforeEach((to, from, next) => {
+  let user = localStorage.getItem('mytoken')
+  if (user) {
+    // 如果已经登陆了,就允许用户进入首页
+    next()
+  } else {
+    if (to.path !== '/login') {
+      next({path: '/login'})
+    } else {
+      next()
+    }
+    // next({path: '/login'})
+  }
+})
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
   router,
-  components: { App },
-  template: '<App/>'
+  render: c => c(App)
 })
