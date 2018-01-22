@@ -58,7 +58,7 @@ export default {
               // 跳转到主页
               this.$router.push({name: 'home'})
             } else {
-              // 登录失败
+              // 登录失败 $message是elementUI提供的
               this.$message({
                 message: res.meta.msg,
                 type: 'error'
