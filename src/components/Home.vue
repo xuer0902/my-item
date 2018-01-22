@@ -33,7 +33,7 @@
             <i class="el-icon-menu"></i>
             <span slot="title">角色列表</span>
           </el-menu-item>
-          <el-menu-item index="/auth">
+          <el-menu-item index="/auths">
             <i class="el-icon-menu"></i>
             <span slot="title">权限列表</span>
           </el-menu-item>
@@ -43,11 +43,11 @@
             <i class="el-icon-location"></i>
             <span slot="title">商品管理</span>
           </template>
-          <el-menu-item index="/product">
+          <el-menu-item index="/products">
             <i class="el-icon-menu"></i>
             <span slot="title">商品列表</span>
           </el-menu-item>
-          <el-menu-item index="/category">
+          <el-menu-item index="/categorys">
             <i class="el-icon-menu"></i>
             <span slot="title">商品分类</span>
           </el-menu-item>

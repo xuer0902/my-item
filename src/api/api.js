@@ -26,7 +26,7 @@ export const login = (params) => {
 // 用户管理-获取用户数据
 export const getUsersData = (params) => {
   return axios.get('users', {params: params}).then(res => {
-    console.log(res.data)
+    // console.log(res.data)
     return res.data
   })
 }
@@ -34,9 +34,31 @@ export const getUsersData = (params) => {
 // restful /users/512/state/true
 export const toggleUserState = (params) => {
   return axios.put('users/' + params.id + 'state' + params.state).then(res => {
-    console.log(res.data)
+    // console.log(res.data)
     return res.data
   })
 }
-
 // 用户管理-添加用户
+export const addUserData = (params) => {
+  return axios.post('users', params).then(res => {
+    return res.data
+  })
+}
+// 用户管理-根据id查询用户
+export const getUsersDataById = (params) => {
+  return axios.get('users/' + params.id).then(res => {
+    return res.data
+  })
+}
+// 用户管理-编辑用户
+export const editUserData = (params) => {
+  return axios.put('users/' + params.id, params).then(res => {
+    return res.data
+  })
+}
+// 用户管理-编辑用户
+export const deleteUserData = (params) => {
+  return axios.delete('users/' + params.id).then(res => {
+    return res.data
+  })
+}

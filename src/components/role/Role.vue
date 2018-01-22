@@ -150,15 +150,6 @@ export default {
     line-height: 50px;
     padding-left: 10px;
   }
-  .el-pagination {
-    background-color: #D3DCE6;
-    padding-top: 10px;
-    height: 35px;
-    line-height: 35px;
-  }
-  .search {
-    width: 300px;
-  }
   .demo-table-expand {
     font-size: 0;
   }

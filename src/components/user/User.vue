@@ -6,11 +6,11 @@
       <el-breadcrumb-item>用户列表</el-breadcrumb-item>
     </el-breadcrumb>
     <div>
-      <el-input placeholder="请输入内容" class="search">
-        <el-button slot="append" icon="el-icon-search"></el-button>
+      <el-input v-model="query" placeholder="请输入内容" class="search">
+        <el-button slot="append" @click="findUser" icon="el-icon-search"></el-button>
       </el-input>
       <!-- 添加用户 -->
-      <el-button type="success" plain>添加用户</el-button>
+      <el-button type="success" plain @click="dialogVisibleAddUser = true">添加用户</el-button>
     </div>
     <el-table
       :data="tableData"
@@ -22,7 +22,7 @@
         width="50">
       </el-table-column>
       <el-table-column
-        prop="role_name"
+        prop="username"
         label="姓名"
         width="180">
       </el-table-column>
@@ -49,11 +49,11 @@
       <el-table-column label="操作" width="220">
         <template slot-scope="scope">
           <!-- 编辑用户信息 -->
-          <el-button size="mini" type="primary" plain>
+          <el-button @click="editHeader(scope.row)" size="mini" type="primary" plain value="bianji">
               <i class="el-icon-edit"></i>
           </el-button>
           <!-- 删除用户 -->
-          <el-button size="mini" type="danger" plain>
+          <el-button @click="deleteHeader(scope.row)" size="mini" type="danger" plain>
             <i class="el-icon-delete"></i>
           </el-button>
           <!-- 设置用户权限 -->
@@ -74,21 +74,178 @@
         :total="total">
       </el-pagination>
     </div>
+    <!-- 添加用户弹框 -->
+    <el-dialog
+      title="添加用户"
+      :visible.sync="dialogVisibleAddUser"
+      width="50%"
+      :before-close="handleCloseAddUser">
+      <el-form :model="addUser" :rules="rules" ref="addUserForm" label-width="100px">
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="addUser.username"></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+          <el-input v-model="addUser.password"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="addUser.email"></el-input>
+        </el-form-item>
+        <el-form-item label="电话" prop="mobile">
+          <el-input v-model="addUser.mobile"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisibleAddUser = false">取 消</el-button>
+        <el-button type="primary" @click="submitAddUser">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 编辑用户弹框 -->
+    <el-dialog
+      title="编辑用户"
+      :visible.sync="dialogVisibleEditUser"
+      width="50%"
+      :before-close="handleCloseEditUser">
+      <el-form :model="editUser" :rules="rules" ref="editUserForm" label-width="100px">
+        <el-form-item label="用户名" prop="username">
+          <el-input disable v-model="editUser.username"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="editUser.email"></el-input>
+        </el-form-item>
+        <el-form-item label="电话" prop="mobile">
+          <el-input v-model="editUser.mobile"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisibleEditUser = false">取 消</el-button>
+        <el-button type="primary" @click="submitEditUser">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import {getUsersData, toggleUserState} from '../../api/api.js'
+import {getUsersData, toggleUserState, addUserData, getUsersDataById, editUserData, deleteUserData} from '../../api/api.js'
 export default {
   data () {
     return {
+      query: '', // 查询的参数
       currentPage: 1, // 当前页码
-      pagesize: 5, // 每页显示条数
+      pagesize: 10, // 每页显示条数
       total: 0, // 数据总条数
-      tableData: []
+      tableData: [],
+      // 用户弹窗显示与否
+      dialogVisibleAddUser: false,
+      dialogVisibleEditUser: false,
+      // 添加的用户信息
+      addUser: {
+        username: '',
+        password: '',
+        email: '',
+        moblie: ''
+      },
+      // 编辑的用户信息
+      editUser: {
+        id: '',
+        username: '',
+        email: '',
+        moblie: ''
+      },
+      rules: {
+        username: [
+          { required: true, message: '请输入用户名', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' }
+        ],
+        email: [
+          { required: true, message: '请输入邮箱', trigger: 'blur' }
+        ],
+        moblie: [
+          { required: true, message: '请输入手机', trigger: 'blur' }
+        ]
+      }
     }
   },
   methods: {
+    // 查询用户
+    findUser () {
+      this.initList()
+    },
+    // 提交添加用户信息
+    submitAddUser () {
+      this.$refs['addUserForm'].validate((valid) => {
+        if (valid) {
+          addUserData(this.addUser).then(res => {
+            console.log(res)
+            if (res.meta.status === 201) {
+              this.dialogVisibleAddUser = false
+              this.initList()
+            }
+          })
+        }
+      })
+    },
+    // 提交编辑用户信息
+    submitEditUser () {
+      this.$refs['editUserForm'].validate((valid) => {
+        if (valid) {
+          editUserData(this.editUser).then(res => {
+            if (res.meta.status === 200) {
+              this.dialogVisibleEditUser = false
+              this.initList()
+            }
+          })
+        }
+      })
+    },
+    // 根据id查询用户最新的数据
+    editHeader (row) {
+      getUsersDataById({id: row.id}).then(res => {
+        if (res.meta.status === 200) {
+          this.editUser.id = res.data.id
+          this.editUser.username = res.data.username
+          this.editUser.email = res.data.email
+          this.editUser.moblie = res.data.moblie
+          // 显示弹框
+          this.dialogVisibleEditUser = true
+        }
+      })
+    },
+    // 删除单个用户
+    deleteHeader (row) {
+      this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 调用后台接口,删除数据
+        deleteUserData(row).then(res => {
+          if (res.meta.status === 200) {
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
+            // 刷新列表
+            this.initList()
+          }
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+    },
+    // 关闭添加用户弹框事件
+    handleCloseAddUser (done) {
+      done()
+    },
+    // 关闭编辑用户弹框事件
+    handleCloseEditUser (done) {
+      done()
+    },
+    // 用户状态切换
     toggleUser (data) {
       toggleUserState({
         id: data.id,
@@ -103,24 +260,20 @@ export default {
         }
       })
     },
-    handleEdit (index, row) {
-      console.log(index, row)
-    },
-    handleDelete (index, row) {
-      console.log(index, row)
-    },
     handleSizeChange (val) {
+      // 改变每页显示条数
       this.pagesize = val
       this.initList()
     },
     handleCurrentChange (val) {
+      // 改变当前页码
       this.currentPage = val
       this.initList()
     },
     initList () {
       // 初始化数据列表
       getUsersData({
-        query: '',
+        query: this.query,
         pagenum: this.currentPage,
         pagesize: this.pagesize
       }).then(res => {
