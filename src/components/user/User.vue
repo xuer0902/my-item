@@ -6,6 +6,7 @@
       <el-breadcrumb-item>用户列表</el-breadcrumb-item>
     </el-breadcrumb>
     <div>
+      <!-- 后台规定用query -->
       <el-input v-model="query" placeholder="请输入内容" class="search">
         <el-button slot="append" @click="findUser" icon="el-icon-search"></el-button>
       </el-input>
@@ -48,16 +49,17 @@
       </el-table-column>
       <el-table-column label="操作" width="220">
         <template slot-scope="scope">
+          <!-- 要是相加文字,就写title属性 -->
           <!-- 编辑用户信息 -->
-          <el-button @click="editHeader(scope.row)" size="mini" type="primary" plain value="bianji">
+          <el-button @click="editHeader(scope.row)" size="mini" type="primary" plain title="编辑用户">
               <i class="el-icon-edit"></i>
           </el-button>
           <!-- 删除用户 -->
-          <el-button @click="deleteHeader(scope.row)" size="mini" type="danger" plain>
+          <el-button @click="deleteHeader(scope.row)" size="mini" type="danger" plain title="删除用户">
             <i class="el-icon-delete"></i>
           </el-button>
           <!-- 设置用户权限 -->
-          <el-button size="mini" type="warning" plain>
+          <el-button size="mini" type="warning" plain title="权限设置">
             <i class="el-icon-check"></i>
           </el-button>
         </template>
@@ -247,6 +249,7 @@ export default {
     },
     // 用户状态切换
     toggleUser (data) {
+      console.log(data)
       toggleUserState({
         id: data.id,
         state: data.mg_state

@@ -62,3 +62,16 @@ export const deleteUserData = (params) => {
     return res.data
   })
 }
+// 权限管理-获取权限列表数据
+export const getRightData = (params) => {
+  return axios.get('rights/' + params.type).then(res => {
+    console.log(res.data)
+    return res.data
+  })
+}
+// 权限管理-角色列表-初始化列表
+export const getRolesData = () => {
+  return axios.get('roles').then(res => {
+    return res.data
+  })
+}

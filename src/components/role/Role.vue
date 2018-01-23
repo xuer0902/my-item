@@ -2,38 +2,33 @@
   <div>
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>用户管理</el-breadcrumb-item>
-      <el-breadcrumb-item>用户列表</el-breadcrumb-item>
+      <el-breadcrumb-item>权限管理</el-breadcrumb-item>
+      <el-breadcrumb-item>角色列表</el-breadcrumb-item>
     </el-breadcrumb>
     <el-button>添加角色</el-button>
     <el-table border stripe
-    :data="tableData5"
+    :data="tableData"
     style="width: 100%">
       <el-table-column type="expand">
-        <template slot-scope="props">
-          <el-form label-position="left" inline class="demo-table-expand">
-            <el-form-item label="商品名称">
-              <span>{{ props.row.name }}</span>
-            </el-form-item>
-            <el-form-item label="所属店铺">
-              <span>{{ props.row.shop }}</span>
-            </el-form-item>
-            <el-form-item label="商品 ID">
-              <span>{{ props.row.id }}</span>
-            </el-form-item>
-            <el-form-item label="店铺 ID">
-              <span>{{ props.row.shopId }}</span>
-            </el-form-item>
-            <el-form-item label="商品分类">
-              <span>{{ props.row.category }}</span>
-            </el-form-item>
-            <el-form-item label="店铺地址">
-              <span>{{ props.row.address }}</span>
-            </el-form-item>
-            <el-form-item label="商品描述">
-              <span>{{ props.row.desc }}</span>
-            </el-form-item>
-          </el-form>
+        <template slot-scope="scope">
+          <!-- 所有的for循环都有key -->
+          <el-row v-for="item in scope.row.children" :key="item.id">
+            <el-col :span="3">
+              <el-tag closable>{{item.authName}}</el-tag>
+              <i v-if="item.children.length>0" class="el-icon-arrow-right arrow"></i>
+            </el-col>
+            <el-col :span="21" class="authlist">
+              <el-row v-for="tag in item.children" :key="tag.id">
+                <el-col :span="4">
+                  <el-tag closable type="success">{{tag.authName}}</el-tag>
+                  <i v-if="tag.children.length>0" class="el-icon-arrow-right arrow"></i>
+                </el-col>
+                <el-col :span="20">
+                  <el-tag v-for="btn in tag.children" :key="btn.id"closable type="warning">{{btn.authName}}</el-tag>
+                </el-col>
+              </el-row>
+            </el-col>
+          </el-row>
         </template>
       </el-table-column>
       <el-table-column
@@ -42,19 +37,19 @@
         width="50">
       </el-table-column>
       <el-table-column
-        label="角色名称" width="180"
-        prop="role_name">
+        label="角色名称" width="250"
+        prop="roleName">
       </el-table-column>
       <el-table-column
-        label="描述" width="400"
-        prop="role_desc">
+        label="描述" width="500"
+        prop="roleDesc">
       </el-table-column>
       <el-table-column label="操作" width="220">
         <template slot-scope="scope">
-          <el-button size="mini" type="primary" plain @click="role_edit">
+          <el-button size="mini" type="primary" plain>
               <i class="el-icon-edit"></i>
           </el-button>
-          <el-button size="mini" type="danger" plain @click="role_del">
+          <el-button size="mini" type="danger" plain>
             <i class="el-icon-delete"></i>
           </el-button>
           <el-button size="mini" type="warning" plain>
@@ -67,77 +62,29 @@
 </template>
 
 <script>
-// import {login} from '../api/api.js'
+import {getRolesData} from '../../api/api.js'
 export default {
   data () {
     return {
-      tableData5: [{
-        id: '12987122',
-        role_name: '好滋好味鸡蛋仔',
-        category: '江浙小吃、小吃零食',
-        role_desc: '荷兰优质淡奶，奶香浓而不腻',
-        address: '上海市普陀区真北路',
-        shop: '王小虎夫妻店',
-        shopId: '10333'
-      }, {
-        id: '12987123',
-        name: '好滋好味鸡蛋仔',
-        category: '江浙小吃、小吃零食',
-        desc: '荷兰优质淡奶，奶香浓而不腻',
-        address: '上海市普陀区真北路',
-        shop: '王小虎夫妻店',
-        shopId: '10333'
-      }, {
-        id: '12987125',
-        name: '好滋好味鸡蛋仔',
-        category: '江浙小吃、小吃零食',
-        desc: '荷兰优质淡奶，奶香浓而不腻',
-        address: '上海市普陀区真北路',
-        shop: '王小虎夫妻店',
-        shopId: '10333'
-      }, {
-        id: '12987126',
-        name: '好滋好味鸡蛋仔',
-        category: '江浙小吃、小吃零食',
-        desc: '荷兰优质淡奶，奶香浓而不腻',
-        address: '上海市普陀区真北路',
-        shop: '王小虎夫妻店',
-        shopId: '10333'
-      }]
+      tableData: []
     }
   },
   methods: {
-    role_edit () {
-      this.$prompt('请输入邮箱', '编辑角色', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        // 输入框校验表达式
-        inputPattern: /[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?/,
-        inputErrorMessage: '邮箱格式不正确'
-      }).then(({ value }) => {
-        this.$message({
-          type: 'success',
-          message: '你的邮箱是: ' + value
-        })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '取消输入'
-        })
-      })
+    deleteRight () {
+
     },
-    role_del () {
-      this.$confirm('确定要删除角色吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '删除成功!'
-        })
+    initList () {
+      getRolesData().then(res => {
+        console.log(res)
+        if (res.meta.status === 200) {
+          this.tableData = res.data
+        }
       })
     }
+  },
+  mounted () {
+    // 注意:一定要写,在挂载好了之后加载页面
+    this.initList()
   }
 }
 </script>
@@ -150,16 +97,15 @@ export default {
     line-height: 50px;
     padding-left: 10px;
   }
-  .demo-table-expand {
-    font-size: 0;
+  .authlist {
+    border-top: solid 1px #D3DCE6;
+    padding-bottom: 5px;
   }
-  .demo-table-expand label {
-    width: 90px;
-    color: #99a9bf;
+  .arrow {
+    font-size: 18px;
+    font-weight: bold;
   }
-  .demo-table-expand .el-form-item {
-    margin-right: 0;
-    margin-bottom: 0;
-    width: 50%;
+  .el-tag  {
+    margin-left: 5px;
   }
 </style>
