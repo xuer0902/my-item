@@ -65,13 +65,30 @@ export const deleteUserData = (params) => {
 // 权限管理-获取权限列表数据
 export const getRightData = (params) => {
   return axios.get('rights/' + params.type).then(res => {
-    console.log(res.data)
     return res.data
   })
 }
 // 权限管理-角色列表-初始化列表
 export const getRolesData = () => {
   return axios.get('roles').then(res => {
+    return res.data
+  })
+}
+// 权限管理-添加角色
+export const addRoleData = (params) => {
+  return axios.post('roles', params).then(res => {
+    return res.data
+  })
+}
+// 权限管理-提交角色授权
+export const giveRoleRight = (params) => {
+  return axios.post('roles/' + params.roleId + '/rights', params).then(res => {
+    return res.data
+  })
+}
+// 权限管理-删除指定的角色的某些权利
+export const deleteRoleRightData = (params) => {
+  return axios.delete('roles/' + params.roleId + '/rights/' + params.rightId).then(res => {
     return res.data
   })
 }
