@@ -28,18 +28,23 @@
         width="180">
       </el-table-column>
       <el-table-column
+        prop="role_name"
+        label="角色"
+        width="180">
+      </el-table-column>
+      <el-table-column
         prop="email"
         label="邮箱"
         width="180">
       </el-table-column>
       <el-table-column
         prop="mobile"
-        width="180"
+        width="120"
         label="电话">
       </el-table-column>
       <el-table-column
         prop="mg_state"
-        width="180"
+        width="80"
         label="用户状态">
         <template slot-scope="scope">
           <!-- 作用域插槽，可以定制数据显示 -->
@@ -59,7 +64,7 @@
             <i class="el-icon-delete"></i>
           </el-button>
           <!-- 设置用户权限 -->
-          <el-button size="mini" type="warning" plain title="权限设置">
+          <el-button @click="RightHeader(scope.row)" size="mini" type="warning" plain title="权限设置">
             <i class="el-icon-check"></i>
           </el-button>
         </template>
@@ -123,14 +128,42 @@
         <el-button type="primary" @click="submitEditUser">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 用户权限分配弹框 -->
+    <el-dialog
+      title="角色分配"
+      :visible.sync="dialogVisibleRightUser"
+      width="50%"
+      :before-close="handleCloseRightUser">
+      <div>
+        <span>当前的用户: </span><span> {{currentUser.username}}</span>
+      </div>
+      <span>请选择角色: </span>
+      <el-select  v-model="currentRole" placeholder="请选择">
+        <!-- lable 和 value 的区别?? -->
+        <el-option
+          v-for="item in roles"
+          :key="item.id"
+          :label="item.roleName"
+          :value="item.id">
+        </el-option>
+      </el-select>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisibleRightUser = false">取 消</el-button>
+        <el-button type="primary" @click="submitRightUser">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import {getUsersData, toggleUserState, addUserData, getUsersDataById, editUserData, deleteUserData} from '../../api/api.js'
+import {getUsersData, toggleUserState, addUserData, getUsersDataById, editUserData, deleteUserData, getRolesData, rightUserData} from '../../api/api.js'
 export default {
   data () {
     return {
+      roles: [], // 角色列表
+      value: '', // 角色列表的值
+      currentRole: '', // 要设置的角色id
+      currentUser: {}, // 当前用户
       query: '', // 查询的参数
       currentPage: 1, // 当前页码
       pagesize: 10, // 每页显示条数
@@ -139,6 +172,7 @@ export default {
       // 用户弹窗显示与否
       dialogVisibleAddUser: false,
       dialogVisibleEditUser: false,
+      dialogVisibleRightUser: false,
       // 添加的用户信息
       addUser: {
         username: '',
@@ -170,7 +204,34 @@ export default {
     }
   },
   methods: {
-    // 查询用户
+    // 给用户分配权限按钮
+    RightHeader (row) {
+      // 设置当前用户
+      this.currentUser = row
+      getRolesData().then(res => {
+        console.log(res)
+        if (res.meta.status === 200) {
+          // 将获取到的角色列表填充到下拉菜单里
+          this.roles = res.data
+        }
+      })
+      this.dialogVisibleRightUser = true
+    },
+    // 点击用户权限分配确定按钮
+    submitRightUser () {
+      rightUserData({id: this.currentUser.id, rid: this.currentRole}).then(res => {
+        console.log(res)
+        if (res.meta.status === 200) {
+          this.dialogVisibleRightUser = false
+          this.initList()
+          this.$message({
+            type: 'success',
+            message: res.meta.msg
+          })
+        }
+      })
+    },
+    // 查询用户(关键字搜索)
     findUser () {
       this.initList()
     },
@@ -245,6 +306,10 @@ export default {
     },
     // 关闭编辑用户弹框事件
     handleCloseEditUser (done) {
+      done()
+    },
+    // 关闭用户分配权限弹框事件
+    handleCloseRightUser (done) {
       done()
     },
     // 用户状态切换

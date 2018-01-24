@@ -62,6 +62,12 @@ export const deleteUserData = (params) => {
     return res.data
   })
 }
+// 用户管理-用户角色设置
+export const rightUserData = (params) => {
+  return axios.put('users/' + params.id + '/role', params).then(res => {
+    return res.data
+  })
+}
 // 权限管理-获取权限列表数据
 export const getRightData = (params) => {
   return axios.get('rights/' + params.type).then(res => {
