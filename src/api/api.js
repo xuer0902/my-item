@@ -33,7 +33,7 @@ export const getUsersData = (params) => {
 // 用户管理-修改用户状态
 // restful /users/512/state/true
 export const toggleUserState = (params) => {
-  return axios.put('users/' + params.id + 'state' + params.state).then(res => {
+  return axios.put('users/' + params.id + '/state/' + params.state).then(res => {
     // console.log(res.data)
     return res.data
   })
@@ -56,7 +56,7 @@ export const editUserData = (params) => {
     return res.data
   })
 }
-// 用户管理-编辑用户
+// 用户管理-删除用户
 export const deleteUserData = (params) => {
   return axios.delete('users/' + params.id).then(res => {
     return res.data
@@ -77,6 +77,24 @@ export const getRolesData = () => {
 // 权限管理-添加角色
 export const addRoleData = (params) => {
   return axios.post('roles', params).then(res => {
+    return res.data
+  })
+}
+// 权限管理-根据id编辑角色
+export const editRoleDataById = (params) => {
+  return axios.get('roles/' + params.id).then(res => {
+    return res.data
+  })
+}
+// 权限管理-编辑角色
+export const editRoleData = (params) => {
+  return axios.put('roles/' + params.id, params).then(res => {
+    return res.data
+  })
+}
+// 权限管理-删除用户
+export const deleteRoleData = (params) => {
+  return axios.delete('roles/' + params.id).then(res => {
     return res.data
   })
 }

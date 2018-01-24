@@ -151,7 +151,7 @@ export default {
         id: '',
         username: '',
         email: '',
-        moblie: ''
+        mobile: ''
       },
       rules: {
         username: [
@@ -208,7 +208,7 @@ export default {
           this.editUser.id = res.data.id
           this.editUser.username = res.data.username
           this.editUser.email = res.data.email
-          this.editUser.moblie = res.data.moblie
+          this.editUser.mobile = res.data.mobile
           // 显示弹框
           this.dialogVisibleEditUser = true
         }

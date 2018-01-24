@@ -46,10 +46,10 @@
       </el-table-column>
       <el-table-column label="操作" width="220">
         <template slot-scope="scope">
-          <el-button size="mini" type="primary" plain title="编辑角色">
+          <el-button size="mini" type="primary" plain title="编辑角色" @click="editRoleData(scope.row)">
               <i class="el-icon-edit"></i>
           </el-button>
-          <el-button size="mini" type="danger" plain title="删除角色">
+          <el-button size="mini" type="danger" plain title="删除角色" @click="deleteRoleData(scope.row)">
             <i class="el-icon-delete"></i>
           </el-button>
           <el-button size="mini" type="warning" plain title="授权角色" @click="getAllRoleGrent(scope.row)">
@@ -60,7 +60,7 @@
     </el-table>
     <!-- 添加角色弹框 -->
     <el-dialog
-      title="提示"
+      title="添加角色"
       :visible.sync="dialogVisible4AddRole"
       width="50%">
       <el-form :model="ruleFormAdd" :rules="rules" ref="ruleFormAdd" label-width="80px">
@@ -77,7 +77,23 @@
       </span>
     </el-dialog>
     <!-- 编辑角色弹框 -->
-    <!-- 删除角色弹框 -->
+    <el-dialog
+      title="编辑角色"
+      :visible.sync="dialogVisible4EditRole"
+      width="50%">
+      <el-form :model="ruleFormEdit" :rules="rules" ref="ruleFormEdit" label-width="80px">
+        <el-form-item label="角色名称" prop="roleName">
+          <el-input v-model="ruleFormEdit.roleName"></el-input>
+        </el-form-item>
+        <el-form-item label="角色描述" prop="roleDesc">
+          <el-input v-model="ruleFormEdit.roleDesc"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible4EditRole = false">取 消</el-button>
+        <el-button type="primary" @click="submit4EditRole">确 定</el-button>
+      </span>
+    </el-dialog>
     <!-- 授权角色弹框 -->
     <el-dialog
       title="授权角色"
@@ -103,7 +119,7 @@
 </template>
 
 <script>
-import {getRolesData, addRoleData, getRightData, giveRoleRight, deleteRoleRightData} from '../../api/api.js'
+import {getRolesData, addRoleData, getRightData, giveRoleRight, deleteRoleRightData, editRoleDataById, editRoleData, deleteRoleData} from '../../api/api.js'
 export default {
   data () {
     return {
@@ -111,9 +127,15 @@ export default {
       tableData: [],
       dialogVisible4AddRole: false,
       dialogVisible4GrentRole: false,
+      dialogVisible4EditRole: false,
       ruleFormAdd: {
         roleName: '',
         roleDesc: ''
+      },
+      ruleFormEdit: {
+        roleName: '',
+        roleDesc: '',
+        id: ''
       },
       rules: {
         roleName: [
@@ -137,6 +159,57 @@ export default {
     }
   },
   methods: {
+    editRoleData (row) {
+      editRoleDataById({id: row.id}).then(res => {
+        if (res.meta.status === 200) {
+          this.ruleFormEdit.id = res.data.roleId
+          this.ruleFormEdit.roleName = res.data.roleName
+          this.ruleFormEdit.roleDesc = res.data.roleDesc
+          this.dialogVisible4EditRole = true
+        }
+      })
+    },
+    // 提交编辑的角色信息
+    submit4EditRole () {
+      this.$refs['ruleFormEdit'].validate(valid => {
+        if (valid) {
+          editRoleData(this.ruleFormEdit).then(res => {
+            console.log(res)
+            if (res.meta.status === 200) {
+              // 关闭弹框
+              this.dialogVisible4EditRole = false
+              // 刷新列表
+              this.initList()
+            }
+          })
+        }
+      })
+    },
+    // 删除角色
+    deleteRoleData (row) {
+      this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 调用后台接口,删除数据
+        deleteRoleData(row).then(res => {
+          if (res.meta.status === 200) {
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
+            // 刷新列表
+            this.initList()
+          }
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+    },
     // 获取指定用户所具有的三级权限
     // 下划线其实就是只在当前用,不在组件中用,以示区分
     // 将在data中找到的需要的数据放到arr中
@@ -222,7 +295,7 @@ export default {
     },
     // 添加角色
     submit4AddRole () {
-      this.$refs['ruleFormAdd'].validate((valid) => {
+      this.$refs['ruleFormAdd'].validate(valid => {
         if (valid) {
           addRoleData(this.ruleFormAdd).then(res => {
             if (res.meta.status === 201) {
