@@ -122,3 +122,9 @@ export const getMenu = () => {
     return res.data
   })
 }
+// 商品管理-商品分类-初始化数据列表
+export const initProductCateList = (params) => {
+  return axios.get('categories', {params: params}).then(res => {
+    return res.data
+  })
+}
