@@ -1,8 +1,8 @@
 <template>
   <el-container>
-    <el-aside :style='{width:"auto",overflow:"visible"}'>
+    <!-- <el-aside :style='{width:"auto",overflow:"visible"}'>
       <div class="logo"></div>
-      <!-- unique-opened:是否保持一个菜单展开 -->
+      unique-opened:是否保持一个菜单展开
       <el-menu
       router
       :collapse="isCollapse"
@@ -77,6 +77,32 @@
           </el-menu-item>
         </el-submenu>
       </el-menu>
+    </el-aside> -->
+    <el-aside :style='{width:"auto",overflow:"visible"}'>
+      <div class="logo"></div>
+      <!-- unique-opened:是否保持一个菜单展开 -->
+      <el-menu
+      router
+      :collapse="isCollapse"
+      :unique-opened="true"
+      default-active="2"
+      class="el-menu-vertical-demo"
+      @open="handleOpen"
+      @close="handleClose"
+      background-color="#545c64"
+      text-color="#fff"
+      active-text-color="#ffd04b">
+        <el-submenu :index="item.path" v-for="item in menuData" :key="item.id">
+          <template slot="title">
+            <i class="el-icon-location"></i>
+            <span slot="title">{{item.authName}}</span>
+          </template>
+            <el-menu-item :index="tag.path" v-for="tag in item.children" :key="tag.id">
+            <i class="el-icon-menu"></i>
+            <span slot="title">{{tag.authName}}</span>
+          </el-menu-item>
+        </el-submenu>
+      </el-menu>
     </el-aside>
     <el-container>
       <el-header>
@@ -94,11 +120,12 @@
 </template>
 
 <script>
-// import {home} from '../api/api.js'
+import {getMenu} from '../api/api.js'
 export default {
   data () {
     return {
-      isCollapse: false
+      isCollapse: false,
+      menuData: []
     }
   },
   methods: {
@@ -117,6 +144,15 @@ export default {
     handleClose (key, keyPath) {
       console.log(key, keyPath)
     }
+  },
+  mounted () {
+    // 调用接口,请求左侧菜单
+    getMenu().then(res => {
+      if (res.meta.status === 200) {
+        // console.log(res.data)
+        this.menuData = res.data
+      }
+    })
   }
 }
 </script>

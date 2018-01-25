@@ -116,3 +116,9 @@ export const deleteRoleRightData = (params) => {
     return res.data
   })
 }
+// 左侧菜单获取
+export const getMenu = () => {
+  return axios.get('menus').then(res => {
+    return res.data
+  })
+}
