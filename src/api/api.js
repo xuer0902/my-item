@@ -122,9 +122,21 @@ export const getMenu = () => {
     return res.data
   })
 }
-// 商品管理-商品分类-初始化数据列表
+// 商品管理-商品分类-初始化数据列表,级联菜单
 export const initProductCateList = (params) => {
   return axios.get('categories', {params: params}).then(res => {
+    return res.data
+  })
+}
+// 商品管理-商品分类-添加分类
+export const addCateData = (params) => {
+  return axios.post('categories', params).then(res => {
+    return res.data
+  })
+}
+// 商品管理-商品分类-删除分类
+export const delCateData = (params) => {
+  return axios.delete('categories/' + params.id).then(res => {
     return res.data
   })
 }
